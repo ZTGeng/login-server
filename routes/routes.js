@@ -81,7 +81,7 @@ module.exports = function(app) {
     app.post('/api/deleteroom', function(req, res) {
         var username = req.body.username;
 
-        room.create_room(username, function(found) {
+        room.delete_room(username, function(found) {
             console.log(found);
             res.json(found);
         });
