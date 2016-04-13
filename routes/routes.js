@@ -2,6 +2,7 @@ var chgpass = require('config/chgpass');
 var register = require('config/register');
 var login = require('config/login');
 var room = require('config/room');
+var friend = require('config/friend');
 
 module.exports = function(app) {
 
@@ -91,6 +92,25 @@ module.exports = function(app) {
         var topic = req.body.topic;
 
         room.get_rooms_by_topic(topic, function(found) {
+            console.log(found);
+            res.json(found);
+        });
+    });
+    
+    app.post('/api/addfriend', function(req, res) {
+        var m_username = req.body.m_username;
+        var f_username = req.body.f_username;
+
+        friend.add_friend(m_username, f_username, function(found) {
+            console.log(found);
+            res.json(found);
+        });
+    });
+    
+    app.post('/api/getfriendlist', function(req, res) {
+        var id = req.body.id;
+
+        friend.get_friends(id, function(found) {
             console.log(found);
             res.json(found);
         });
