@@ -71,9 +71,10 @@ module.exports = function(app) {
     app.post('/api/createroom', function(req, res) {
         var username = req.body.username;
         var topic = req.body.topic;
+        var tags = req.body.tags;
         var rate = req.body.rate;
 
-        room.create_room(username, topic, rate, function(found) {
+        room.create_room(username, topic, tags, rate, function(found) {
             console.log(found);
             res.json(found);
         });
@@ -89,9 +90,10 @@ module.exports = function(app) {
     });
     
     app.post('/api/getroomlist', function(req, res) {
+        var id = req.body.id;
         var topic = req.body.topic;
 
-        room.get_rooms_by_topic(topic, function(found) {
+        room.get_rooms_by_topic(id, topic, function(found) {
             console.log(found);
             res.json(found);
         });
