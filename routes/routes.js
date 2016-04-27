@@ -3,6 +3,9 @@ var register = require('config/register');
 var login = require('config/login');
 var room = require('config/room');
 var friend = require('config/friend');
+var gcm = require('config/gcm');
+
+var request = require('request');
 
 module.exports = function(app) {
 
@@ -116,6 +119,46 @@ module.exports = function(app) {
             console.log(found);
             res.json(found);
         });
+    });
+    
+    app.post('/api/updategcmtoken', function(req, res) {
+        var id = req.body.id;
+        var gcm_token = req.body.gcm_token;
+        
+        gcm.update_token(id, gcm_token, function(found) {
+            console.log(found);
+            res.json(found);
+        });
+    });
+    
+    app.post('/api/callfriends', function(req, res) {
+        var id = req.body.id;
+        var roomId = req.body.roomId;
+        var isNavigation = req.body.isNavigation;
+        
+        gcm.call_friends(id, roomId, isNavigation, function(found) {
+            console.log(found);
+            res.json(found);
+        });
+    });
+    
+    app.get('/test', function(req, res) {
+        request({
+            url: 'https://gcm-http.googleapis.com/gcm/send',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'key=AIzaSyCXbMrUxAN_OUiF0kCJeEWPpgoxZw_5Imc'
+            },
+            method: 'POST',
+            json: true,
+            body: { 
+                "data": {
+                    "message": "1234",
+                    "time": (new Date()).getTime
+                },
+                "to" : "fRGmLEwl9CQ:APA91bGksyfmBhWBXZarrRPR3i79cTZTG4dUHGR3Z1_tsXFgRlrWqhdj9_dFlGFoRD4knLJsxbceGrg_lbyCRbF__0Efw2zAzHPgBF3TyWVFiTIkZi-Ql87o5_oIUHaIn64qjPQw3_ZO"
+            }
+        }, function() {});
     });
 };
 
