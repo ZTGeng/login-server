@@ -4,6 +4,7 @@ var login = require('config/login');
 var room = require('config/room');
 var friend = require('config/friend');
 var gcm = require('config/gcm');
+var rate = require('config/rate');
 
 var request = require('request');
 
@@ -33,6 +34,24 @@ module.exports = function(app) {
         var role = req.body.role;
 
         register.register(email, password, username, role, function(found) {
+            console.log(found);
+            res.json(found);
+        });
+    });
+    
+    app.post('/api/checkemail', function(req, res) {
+        var email = req.body.email;
+        
+        register.isEmailValid(email, function(found) {
+            console.log(found);
+            res.json(found);
+        });
+    });
+    
+    app.post('/api/checkusername', function(req, res) {
+        var username = req.body.username;
+        
+        register.isUsernameValid(username, function(found) {
             console.log(found);
             res.json(found);
         });
@@ -73,11 +92,11 @@ module.exports = function(app) {
     
     app.post('/api/createroom', function(req, res) {
         var username = req.body.username;
-        var topic = req.body.topic;
-        var tags = req.body.tags;
-        var rate = req.body.rate;
+        var des = req.body.des;
+        var isNavigation = (req.body.isNavigation.toLowerCase() === 'true');
+        var rate = parseFloat(req.body.rate);
 
-        room.create_room(username, topic, tags, rate, function(found) {
+        room.create_room(username, des, isNavigation, rate, function(found) {
             console.log(found);
             res.json(found);
         });
@@ -94,9 +113,9 @@ module.exports = function(app) {
     
     app.post('/api/getroomlist', function(req, res) {
         var id = req.body.id;
-        var topic = req.body.topic;
+        // var topic = req.body.topic;
 
-        room.get_rooms_by_topic(id, topic, function(found) {
+        room.get_rooms_by_topic(id, 'General', function(found) {
             console.log(found);
             res.json(found);
         });
@@ -113,9 +132,9 @@ module.exports = function(app) {
     });
     
     app.post('/api/getfriendlist', function(req, res) {
-        var id = req.body.id;
+        var username = req.body.username;
 
-        friend.get_friends(id, function(found) {
+        friend.get_friends(username, function(found) {
             console.log(found);
             res.json(found);
         });
@@ -131,34 +150,50 @@ module.exports = function(app) {
         });
     });
     
-    app.post('/api/callfriends', function(req, res) {
-        var id = req.body.id;
-        var roomId = req.body.roomId;
-        var isNavigation = req.body.isNavigation;
+    // app.post('/api/callfriends', function(req, res) {
+    //     var id = req.body.id;
+    //     var roomId = req.body.roomId;
+    //     var isNavigation = req.body.isNavigation;
         
-        gcm.call_friends(id, roomId, isNavigation, function(found) {
+    //     gcm.call_friends(id, roomId, isNavigation, function(found) {
+    //         console.log(found);
+    //         res.json(found);
+    //     });
+    // });
+    
+    app.post('/api/callfriendsbyname', function(req, res) {
+        var username = req.body.username;
+        var friends = req.body.friends.split(',');
+        var des = req.body.des;
+        var roomId = req.body.roomId;
+        var isNavigation = req.body.isNavigation.toLowerCase();
+        var rate = req.body.rate;
+        
+        gcm.call_friends_by_name(username, friends, des, roomId, isNavigation, rate, function(found) {
             console.log(found);
             res.json(found);
         });
     });
     
-    app.get('/test', function(req, res) {
-        request({
-            url: 'https://gcm-http.googleapis.com/gcm/send',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'key=AIzaSyCXbMrUxAN_OUiF0kCJeEWPpgoxZw_5Imc'
-            },
-            method: 'POST',
-            json: true,
-            body: { 
-                "data": {
-                    "message": "1234",
-                    "time": (new Date()).getTime
-                },
-                "to" : "fRGmLEwl9CQ:APA91bGksyfmBhWBXZarrRPR3i79cTZTG4dUHGR3Z1_tsXFgRlrWqhdj9_dFlGFoRD4knLJsxbceGrg_lbyCRbF__0Efw2zAzHPgBF3TyWVFiTIkZi-Ql87o5_oIUHaIn64qjPQw3_ZO"
-            }
-        }, function() {});
+    app.post('/api/rate', function(req, res) {
+        var username = req.body.username;
+        var rater = req.body.rater;
+        var rateStr = req.body.rate;
+        
+        rate.rate(username, rater, rateStr, function(found) {
+            console.log(found);
+            res.json(found);
+        }); 
     });
+    
+    app.post('/api/getrate', function(req, res) {
+        var username = req.body.username;
+        
+        rate.getRateFloat(username, function(found) {
+            console.log(found);
+            res.json(found);
+        });
+    });
+    
 };
 
