@@ -17,9 +17,9 @@ module.exports = function(app) {
     });
 
     app.post('/login', function(req, res) {
+        console.log(req.body);
         var email = req.body.email;
         var password = req.body.password;
-        var role = role;
 
         login.login(email, password, function(found) {
             console.log(found);
